@@ -20,3 +20,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('ping', function() {
   return ['ping' => 'pong'];
 });
+
+Route::post('screenName', 'GameController@start');
