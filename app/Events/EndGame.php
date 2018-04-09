@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class StartGame implements ShouldBroadcast
+class EndGame implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -21,7 +21,6 @@ class StartGame implements ShouldBroadcast
     {
         $this->game = $game;
     }
-
 
     /**
      * Get the channels the event should broadcast on.
@@ -35,9 +34,8 @@ class StartGame implements ShouldBroadcast
 
     public function broadcastWith()
     {
-      // put random letters string here
       return [
-        'game' => $this->game,
+        'game' => $this->game
       ];
     }
 }

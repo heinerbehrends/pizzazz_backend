@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Game;
 use App\Events\StartGame;
+use App\Events\EndGame;
 use Illuminate\Http\Request;
-// use Pusher\Pusher;
-// use Pusher\Laravel\Facades\Pusher;
 
 class GameController extends Controller
 {
@@ -18,7 +17,7 @@ class GameController extends Controller
      */
 
 
-    public function start(Request $request)
+    public function save(Request $request)
     {
         $latestGame = Game::orderBy('created_at', 'desc')->first();
 
@@ -26,43 +25,69 @@ class GameController extends Controller
           // There is someone waiting
           $latestGame->player2Name = $request->screenName;
           $latestGame->save();
-          // Send event to start the game
-
-          // $options = array(
-          //    'cluster' => 'eu',
-          //    'encrypted' => true
-          //  );
-          //  $pusher = new Pusher(
-          //    '3d2256d4fd0ec99b3854',
-          //    '6f02066e9a8e3a4ff675',
-          //    '503491',
-          //    $options
-          //  );
-          //
-          //  $data['randomLetters'] = 'abcdefg';
-          //  $pusher->trigger('pizzazz', 'start-game', $data);
 
           event(new StartGame($latestGame));
-          // Pusher::trigger('pizzazz', 'start-game', ['randomLetters' => 'abcdefg']);
 
           return response()->json([
-            'message' => 'You play against ' . $request->screenName
+            'message' => 'You play against ' . $request->screenName,
+            'game' => $latestGame,
+            'firstPlayer' => false,
           ], 201);
         }
         else {
           // Start a new game and wait for opponent
           $game = new Game;
           $game->player1Name = $request->screenName;
+          $game->randomLetters = $game->makeRandomLetters();
           $game->save();
-          // Listen for the second player
 
           return response()->json([
-            'message' => 'waiting for an opponent'
+            'message' => 'waiting for an opponent',
+            'firstPlayer' => true,
+            'game' => $game,
           ], 201);
         }
     }
-  public function destroy(Game $game)
+  public function start(Request $request)
     {
-        //
+      $latestGame = Game::orderBy('created_at', 'desc')->first();
+
+
+      return response()->json([
+        'id' => $latestGame->id,
+        'firstPlayer' => false,
+      ], 201);
+
     }
+
+  public function end(Request $request)
+  {
+    $game = Game::orderBy('created_at', 'desc')->first();
+
+    $solution = '';
+    foreach ($request->makeMove as $solutionArray) {
+      $solution .= $solutionArray[0] . ' ';
+    }
+    $score = 0;
+    foreach ($request->makeMove as $solutionArray) {
+      $score += $solutionArray[1];
+    }
+
+    if ($request->firstPlayer) {
+      $game->player1Solution = $solution;
+      $game->player1Score = $score;
+    }
+    else {
+      $game->player2Solution = $solution;
+      $game->player2Score = $score;
+    }
+    $game->save();
+
+    if ($game->player1Solution !== '' and $game->player2Solution !== '') {
+      event(new EndGame($game));
+    }
+    return response()->json([
+      'game' => $game
+    ]);
+  }
 }

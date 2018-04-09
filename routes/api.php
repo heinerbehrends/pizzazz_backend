@@ -13,12 +13,12 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
-Route::get('ping', function() {
-  return ['ping' => 'pong'];
-});
+Route::post('screenName', 'GameController@save');
 
-Route::post('screenName', 'GameController@start');
+Route::post('start', 'GameController@start');
+
+Route::post('endGame', 'GameController@end');
