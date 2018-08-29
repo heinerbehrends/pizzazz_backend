@@ -62,6 +62,10 @@ class GameController extends Controller
 
   public function end(Request $request)
   {
+    if ($request->firstPlayer) {
+      usleep(100000);
+    }
+    
     $game = Game::orderBy('created_at', 'desc')->first();
 
     $solution = '';
