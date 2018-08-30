@@ -21,23 +21,23 @@ class Game extends Model
       ];
       $bagOfVowels = [];
       foreach ($vowelsDistribution as $vowel => $numberOf) {
-        for ($i=0; $i<$vowelsDistribution[$vowel]; $i++) {
+        for ($i=0; $i<$numberOf; $i++) {
           array_push($bagOfVowels, $vowel);
         }
       }
       $bagOfConsonants = [];
       foreach ($consonantsDistribution as $consonant => $numberOf) {
-        for ($i=0; $i<$consonantsDistribution[$consonant]; $i++) {
+        for ($i=0; $i<$numberOf; $i++) {
           array_push($bagOfConsonants, $consonant);
         }
       }
-      // lad(count($bagOfVowels));
+
       $randomLetters = '';
       for ($i=0; $i<3; $i++) {
-        $randomLetters .= $bagOfVowels[rand(0, count($bagOfVowels))];
+        $randomLetters .= $bagOfVowels[rand(0, count($bagOfVowels) -1)];
       }
       for ($i=0; $i<4; $i++) {
-        $randomLetters .= $bagOfConsonants[rand(0, count($bagOfConsonants))];
+        $randomLetters .= $bagOfConsonants[rand(0, count($bagOfConsonants) -1)];
       }
       $randomLetters = str_shuffle($randomLetters);
 
