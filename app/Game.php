@@ -10,7 +10,25 @@ class Game extends Model
       'player1', 'player2', 'player1Solution', 'player2Solution',
       'player1Score', 'player2Score'];
 
+    public function makeBagOfLetters($letterDistribution) {
+      $bagOfLetters = [];
+      foreach ($letterDistribution as $letter => $numberOf) {
+        for ($i=0; $i<$numberOf; $i++) {
+          array_push($bagOfLetters, $letter);
+        }
+      }
+      return $bagOfLetters;
+    }
+    public function drawRandomLetters($numberOf, $bagOfLetters) {
+      $randomLetters = '';
+      for ($i=0; $i<$numberOf; $i++) {
+        $randomLetters .= $bagOfLetters[rand(0, count($bagOfLetters) -1)];
+      }
+      return $randomLetters;
+    }
+
     public function makeRandomLetters() {
+      
       $vowelsDistribution = [
         'e'=>12, 'a'=>9, 'i'=>9, 'o'=>8,'u'=>4
       ];
@@ -19,26 +37,12 @@ class Game extends Model
         'c'=>2, 'm'=>2, 'p'=>2, 'f'=>2, 'h'=>2, 'v'=>2, 'w'=>2, 'y'=>2,
         'k'=>1, 'j'=>1, 'x'=>1, 'q'=>1, 'z'=>4, '8'=>2
       ];
-      $bagOfVowels = [];
-      foreach ($vowelsDistribution as $vowel => $numberOf) {
-        for ($i=0; $i<$numberOf; $i++) {
-          array_push($bagOfVowels, $vowel);
-        }
-      }
-      $bagOfConsonants = [];
-      foreach ($consonantsDistribution as $consonant => $numberOf) {
-        for ($i=0; $i<$numberOf; $i++) {
-          array_push($bagOfConsonants, $consonant);
-        }
-      }
 
-      $randomLetters = '';
-      for ($i=0; $i<3; $i++) {
-        $randomLetters .= $bagOfVowels[rand(0, count($bagOfVowels) -1)];
-      }
-      for ($i=0; $i<4; $i++) {
-        $randomLetters .= $bagOfConsonants[rand(0, count($bagOfConsonants) -1)];
-      }
+      $bagOfVowels = $this->makeBagOfLetters($vowelsDistribution);
+      $bagOfConsonants = $this->makeBagOfLetters($consonantsDistribution);
+
+      $randomLetters = $this->drawRandomLetters(3, $bagOfVowels);
+      $randomLetters .= $this->drawRandomLetters(4, $bagOfConsonants);
       $randomLetters = str_shuffle($randomLetters);
 
       return strtoupper($randomLetters);
