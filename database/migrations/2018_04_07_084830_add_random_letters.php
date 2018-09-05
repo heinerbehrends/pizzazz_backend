@@ -26,7 +26,7 @@ class AddRandomLetters extends Migration
     public function down()
     {
         Schema::table('games', function (Blueprint $table) {
-            //
+          $table->dropColumn('randomLetters');
         });
     }
 }

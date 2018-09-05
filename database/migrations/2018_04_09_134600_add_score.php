@@ -27,7 +27,8 @@ class AddScore extends Migration
     public function down()
     {
         Schema::table('game', function (Blueprint $table) {
-            //
+          $table->dropColumn('player1Score');
+          $table->dropColumn('player2Score');
         });
     }
 }
