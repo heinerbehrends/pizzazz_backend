@@ -21,9 +21,11 @@ class FindValidWords
       return $validWords;
     }
 
-    public static function getSortedValidWords($validWordsArray)
+    public static function getSortedValidWords()
     {
+        $validWordsArray = self::loadWords();
         $sortedValidWords = [];
+
         foreach ($validWordsArray as $word => $score) {
           $sortedValidWords[self::sortString($word)] = $word;
         }
