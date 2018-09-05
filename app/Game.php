@@ -12,4 +12,8 @@ class Game extends Model
       'player1', 'player2', 'player1Solution', 'player2Solution',
       'player1Score', 'player2Score'];
 
+      protected $casts = [
+         'validWords' => 'array',
+     ];
+
 }
