@@ -17,8 +17,6 @@ use Illuminate\Http\Request;
 //     return $request->user();
 // });
 
-Route::post('screenName', 'GameController@save');
-
 Route::post('start', 'GameController@start');
 
 Route::post('endGame', 'GameController@end');
