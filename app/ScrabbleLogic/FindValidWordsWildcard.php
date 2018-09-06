@@ -8,6 +8,7 @@ class FindValidWordsWildcard
 {
   public static function findValidWordsWildcard($randomLettersWildcard, $sortedValidWords)
   {
+    $randomLettersWildcard = strtolower($randomLettersWildcard);
     $sortedPossibleStrings = self::getSortedStrings($randomLettersWildcard);
     $validWordsWildcard = [];
 
@@ -23,7 +24,7 @@ class FindValidWordsWildcard
 
     return $validWordsWildcard;
   }
-  
+
 
   public static function getSortedStrings($stringWithWildcard)
   {

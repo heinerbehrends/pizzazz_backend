@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Game;
+use App\ScrabbleLogic\MakeRandomLetters;
+use App\ScrabbleLogic\FindValidWords;
+use App\ScrabbleLogic\FindValidWordsWildcard;
 use App\Events\StartGame;
 use App\Events\EndGame;
+use App\Jobs\MakeLettersAndWords;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
@@ -17,11 +21,34 @@ class GameController extends Controller
      */
 
 
-    public function save(Request $request)
+    public function start(Request $request)
     {
         $latestGame = Game::orderBy('created_at', 'desc')->first();
+        $isFirstPlayer = !($latestGame->player2Name === '');
 
-        if ($latestGame->player2Name === '') {
+        if ($isFirstPlayer) {
+          // Start a new game and wait for opponent
+          $game = new Game;
+          $game->player1Name = $request->screenName;
+          $game->randomLetters = MakeRandomLetters::makeRandomLetters();
+
+          $sortedValidWords = FindValidWords::getSortedValidWords();
+          if (strpos($game->randomLetters, '8') === false) {
+            $game->validWords = FindValidWords::findValidWords($game->randomLetters, $sortedValidWords);
+          }
+          else {
+            $game->validWords = FindValidWordsWildcard::findValidWordsWildcard($game->randomLetters, $sortedValidWords);
+          }
+
+          $game->save();
+
+          return response()->json([
+            'game' => $game,
+            'firstPlayer' => true,
+          ], 201);
+        }
+
+        else {
           // There is someone waiting
           $latestGame->player2Name = $request->screenName;
           $latestGame->save();
@@ -29,34 +56,10 @@ class GameController extends Controller
           event(new StartGame($latestGame));
 
           return response()->json([
-            'message' => 'You play against ' . $request->screenName,
             'game' => $latestGame,
             'firstPlayer' => false,
           ], 201);
         }
-        else {
-          // Start a new game and wait for opponent
-          $game = new Game;
-          $game->player1Name = $request->screenName;
-          $game->randomLetters = $game->makeRandomLetters();
-          $game->save();
-
-          return response()->json([
-            'message' => 'waiting for an opponent',
-            'firstPlayer' => true,
-            'game' => $game,
-          ], 201);
-        }
-    }
-  public function start(Request $request)
-    {
-      $latestGame = Game::orderBy('created_at', 'desc')->first();
-
-
-      return response()->json([
-        'id' => $latestGame->id,
-        'firstPlayer' => false,
-      ], 201);
 
     }
 
@@ -65,8 +68,8 @@ class GameController extends Controller
     if ($request->firstPlayer) {
       usleep(100000);
     }
-    
-    $game = Game::orderBy('created_at', 'desc')->first();
+
+    $game = Game::find($request->id);
 
     $solution = '';
     foreach ($request->makeMove as $solutionArray) {
